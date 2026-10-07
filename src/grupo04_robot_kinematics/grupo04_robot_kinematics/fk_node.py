@@ -24,15 +24,17 @@ class FKNode(Node):
             
             q1, q2, q3, q4, q5, q6 = q
 
+            q1 = -q1
+
             # ECUACIONES
             px = -0.08*(np.sin(q1)*np.sin(q4) + np.sin(q2 + q3)*np.cos(q1)*np.cos(q4))*np.sin(q5) + (0.035*np.sin(q2 + q3) + 0.455*np.cos(q2) + 0.025)*np.cos(q1) + 0.08*np.cos(q1)*np.cos(q5)*np.cos(q2 + q3) + 0.42*np.cos(q1)*np.cos(q2 + q3)
             py = -0.08*(np.sin(q1)*np.sin(q2 + q3)*np.cos(q4) - np.sin(q4)*np.cos(q1))*np.sin(q5) + (0.035*np.sin(q2 + q3) + 0.455*np.cos(q2) + 0.025)*np.sin(q1) + 0.08*np.sin(q1)*np.cos(q5)*np.cos(q2 + q3) + 0.42*np.sin(q1)*np.cos(q2 + q3)
             pz = -0.455*np.sin(q2) - 0.08*np.sin(q5)*np.cos(q4)*np.cos(q2 + q3) - 0.08*np.sin(q2 + q3)*np.cos(q5) - 0.42*np.sin(q2 + q3) + 0.035*np.cos(q2 + q3) + 0.400
 
-            self.get_logger().info(f"FK -> Posición Cartesian: x={px:.3f}, y={py:.3f}, z={pz:.3f}")
+            self.get_logger().info(f"Posicion Cartesian: x={px:.3f}, y={py:.3f}, z={pz:.3f}")
 
         except Exception as e:
-            self.get_logger().error(f"Error procesando FK: {e}")
+            self.get_logger().error(f"Error procesando fk: {e}")
 
 def main(args=None):
     rclpy.init(args=args)
