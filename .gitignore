@@ -1,0 +1,22 @@
+# ROS 2 build & install artifacts
+build/
+install/
+log/
+
+# Python compiled files & caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Paquete externo de descripcion KUKA (descargado por dependencias.repos / instalar.sh)
+src/kuka_robot_descriptions/

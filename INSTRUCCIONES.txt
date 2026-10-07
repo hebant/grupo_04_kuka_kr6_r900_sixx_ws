@@ -1,0 +1,120 @@
+================================================================================
+IMT-342 ROBÓTICA – UNIVERSIDAD CATÓLICA BOLIVIANA "SAN PABLO"
+PRIMER PARCIAL PRÁCTICO: CINEMÁTICA DIRECTA E INVERSA
+ROBOT: KUKA KR 6 R900 sixx (KR AGILUS)
+
+GRUPO 04:
+- Heber Poma
+- Sebastian Ibañez
+Docente: Ing. Carlos Daniel Aguilar Mancachi
+================================================================================
+
+Este repositorio contiene la implementación reproducible completa de la Cinemática
+Directa (FK) y Cinemática Inversa (IK) para el manipulador industrial KUKA KR 6 R900 sixx
+en ROS 2 Jazzy.
+
+================================================================================
+1. INSTALACIÓN EN UN SOLO PASO (COMPUTADORA LIMPIA / NUEVA)
+================================================================================
+
+Requisitos del sistema:
+- Sistema Operativo: Ubuntu 24.04 LTS
+- ROS 2: Jazzy Jalisco (/opt/ros/jazzy)
+- Conexión a Internet activa durante la instalación
+
+Para instalar todo de manera automática y ultra sencilla:
+
+  cd grupo_04_kuka_kr6_r900_sixx_ws
+  chmod +x *.sh
+  ./instalar.sh
+
+¿Qué hace './instalar.sh' automáticamente?
+1. Verifica que ROS 2 Jazzy esté instalado.
+2. Instala dependencias de APT (colcon, rosdep, vcstool, rviz2, xacro, cyclone dds, numpy, sympy).
+3. Clona el modelo oficial del robot KUKA (kuka_robot_descriptions) en 'src/'.
+4. Resuelve e instala dependencias con rosdep.
+5. Compila el workspace con 'colcon build --symlink-install'.
+6. Configura el archivo 'entorno.sh' dinámicamente.
+
+================================================================================
+2. ABRIR EL ROBOT EN RVIZ2
+================================================================================
+
+Forma rápida con script atajo:
+  ./abrir.sh
+
+Forma manual:
+  source entorno.sh
+  ros2 launch grupo04_kuka_kr6_bringup display.launch.py
+
+Al ejecutarlo se abrirá:
+- RViz2 con el modelo 3D detallado del KUKA KR 6 R900 sixx.
+- La ventana de Joint State Publisher GUI con los controles deslizantes
+  de las 6 articulaciones (joint_1 a joint_6).
+
+================================================================================
+3. EJECUTAR LA CINEMÁTICA DIRECTA (FK)
+================================================================================
+
+En una terminal adicional:
+  ./ejecutar_fk.sh
+
+O de forma manual:
+  source entorno.sh
+  ros2 run grupo04_robot_kinematics fk_node
+
+El nodo 'fk_node' se suscribe a '/joint_states', lee los ángulos articulares en
+tiempo real y calcula la posición cartesiana (x, y, z) del efector final.
+Mueve los controles de la ventana GUI para ver cómo cambian las coordenadas.
+
+================================================================================
+4. EJECUTAR LA CINEMÁTICA INVERSA (IK)
+================================================================================
+
+IMPORTANTE PARA LA PRUEBA DE IK (Sección VIII-D de la guía):
+La ventana gráfica 'Joint State Publisher GUI' publica constantemente en el
+tópico '/joint_states'. Para que el nodo de IK pueda posicionar el robot en RViz2
+sin interferencias, CIERRA la ventana pequeña del GUI antes de enviar objetivos.
+
+Paso 1: Iniciar el nodo IK en una terminal:
+  ./ejecutar_ik.sh
+  (o: ros2 run grupo04_robot_kinematics ik_node)
+
+Paso 2: En otra terminal, enviar un objetivo cartesiano (x, y, z):
+  ./probar_target.sh 0.60 0.20 0.50
+
+  O mediante el comando oficial de ROS 2:
+  ros2 topic pub /target geometry_msgs/msg/Point "{x: 0.60, y: 0.20, z: 0.50}" --once
+
+Paso 3: Observa cómo:
+- El nodo 'ik_node' calcula la solución con la pseudoinversa del Jacobiano.
+- Publica los ángulos articulares en '/joint_states'.
+- El robot en RViz2 se mueve automáticamente al objetivo deseado.
+- El nodo 'fk_node' confirma numéricamente la posición alcanzada.
+
+================================================================================
+5. CASOS DE PRUEBA VERIFICADOS (ALCANZABLES)
+================================================================================
+
+Objetivo 1 (frontal medio):
+  ./probar_target.sh 0.70 0.00 0.50
+  -> Converge en ~64 iteraciones, error < 0.001 m
+
+Objetivo 2 (lateral derecho):
+  ./probar_target.sh 0.60 0.30 0.40
+  -> Converge en ~63 iteraciones, error < 0.001 m
+
+Objetivo 3 (lateral izquierdo elevado):
+  ./probar_target.sh 0.50 -0.30 0.60
+  -> Converge en ~65 iteraciones, error < 0.001 m
+
+================================================================================
+6. RECOMPILACIÓN Y VERIFICACIÓN
+================================================================================
+
+Si agregas o modificas código en 'src/':
+  ./recompilar.sh
+
+Para revisar los tópicos, nodos y estado de CycloneDDS:
+  ./verificar.sh
+================================================================================
