@@ -44,7 +44,6 @@
 
 ## 4. Estructura del Repositorio
 
-Cumpliendo estrictamente con la estructura solicitada en la guía oficial:
 
 ```text
 grupo_04_kuka_kr6_r900_sixx_ws/
@@ -86,7 +85,7 @@ grupo_04_kuka_kr6_r900_sixx_ws/
 
 ---
 
-## 5. Procedimiento de Instalación (Ultra Sencilla en 1 Paso)
+## 5. Procedimiento de Instalación
 
 En una computadora limpia con Ubuntu 24.04 y ROS 2 Jazzy:
 
@@ -219,56 +218,9 @@ ros2 topic pub /target geometry_msgs/msg/Point "{x: 0.60, y: 0.20, z: 0.50}" --o
 
 ---
 
-## 8. Parámetros Denavit–Hartenberg del KUKA KR 6 R900 sixx
 
-Convención Denavit–Hartenberg estándar:
-$$A_{i-1}^i = R_z(\theta_i) \, T_z(d_i) \, T_x(a_i) \, R_x(\alpha_i)$$
 
-| Transformación | $\theta_i$ | $d_i$ [m] | $a_i$ [m] | $\alpha_i$ [rad] | Descripción |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| $A_0^1$ | $q_1$ | $0.400$ | $0.025$ | $-\pi/2$ | base $\rightarrow$ link 1 |
-| $A_1^2$ | $q_2$ | $0.000$ | $0.455$ | $0$ | link 1 $\rightarrow$ link 2 |
-| $A_2^3$ | $q_3 - \pi/2$ | $0.000$ | $0.035$ | $-\pi/2$ | link 2 $\rightarrow$ link 3 |
-| $A_3^4$ | $q_4$ | $0.420$ | $0.000$ | $\pi/2$ | link 3 $\rightarrow$ link 4 |
-| $A_4^5$ | $q_5$ | $0.000$ | $0.000$ | $-\pi/2$ | link 4 $\rightarrow$ link 5 |
-| $A_5^6$ | $q_6$ | $0.080$ | $0.000$ | $0$ | link 5 $\rightarrow$ tool0 |
-
-### Límites Articulares Utilizados
-
-| Articulación | Mínimo [rad] | Máximo [rad] | Mínimo [°] | Máximo [°] |
-| :---: | :---: | :---: | :---: | :---: |
-| $q_1$ | $-2.96$ | $+2.96$ | $-170^\circ$ | $+170^\circ$ |
-| $q_2$ | $-3.31$ | $+0.78$ | $-190^\circ$ | $+45^\circ$ |
-| $q_3$ | $-2.09$ | $+2.72$ | $-120^\circ$ | $+156^\circ$ |
-| $q_4$ | $-3.22$ | $+3.22$ | $-185^\circ$ | $+185^\circ$ |
-| $q_5$ | $-2.09$ | $+2.09$ | $-120^\circ$ | $+120^\circ$ |
-| $q_6$ | $-6.10$ | $+6.10$ | $-350^\circ$ | $+350^\circ$ |
-
----
-
-## 9. Validación Numérica
-
-### 9.1. Validación de Cinemática Directa (FK)
-
-| Caso | $q$ [rad] | $p_{calc}$ [m] | Estado |
-| :---: | :---: | :---: | :---: |
-| 1 | $[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]$ | $[0.980, 0.000, 0.435]$ | Posición Home / extendida |
-| 2 | $[0.0, -1.5708, 1.5708, 0.0, 0.0, 0.0]$ | $[0.535, 0.000, 0.880]$ | Codo a 90° |
-| 3 | $[0.2, -0.3, 0.4, 0.1, -0.2, 0.5]$ | $[0.942, 0.189, 0.535]$ | Configuración general no trivial |
-
-### 9.2. Validación de Cinemática Inversa (IK)
-
-Criterio de convergencia: $\varepsilon = 0.001\text{ m}$ ($1\text{ mm}$), factor de actualización $\alpha = 0.1$, máximo de iteraciones $= 2000$.
-
-| Caso | Objetivo $p_d$ [m] | Iteraciones | Error final [m] | Estado |
-| :---: | :---: | :---: | :---: | :---: |
-| 1 | $[0.70, 0.00, 0.50]$ | 64 | $9.94 \times 10^{-4}$ | **CONVERGIDO** |
-| 2 | $[0.60, 0.30, 0.40]$ | 63 | $9.70 \times 10^{-4}$ | **CONVERGIDO** |
-| 3 | $[0.50, -0.30, 0.60]$ | 65 | $9.69 \times 10^{-4}$ | **CONVERGIDO** |
-
----
-
-## 10. Tópicos y Mensajes ROS 2
+## 8. Tópicos y Mensajes ROS 2
 
 | Tópico | Tipo de Mensaje | Función |
 | :--- | :--- | :--- |
@@ -278,15 +230,8 @@ Criterio de convergencia: $\varepsilon = 0.001\text{ m}$ ($1\text{ mm}$), factor
 
 ---
 
-## 11. Errores Conocidos y Consideraciones Particulares
 
-1. **Conflicto en `/joint_states`:** `joint_state_publisher_gui` emite constantemente estados articulares. Si no se cierra antes de enviar objetivos a `ik_node`, ambos publicadores competirán y el robot titilará. Para pruebas de IK, cierre la ventana del GUI.
-2. **Configuración de Middleware DDS:** El proyecto utiliza `rmw_cyclonedds_cpp` para garantizar compatibilidad idéntica con los laboratorios y computadoras de prueba.
-3. **Puntos no alcanzables y singularidades:** Si se envía un objetivo fuera del alcance de trabajo del manipulador ($r > 0.98\text{ m}$) o en configuraciones singulares, el algoritmo de IK notificará que no fue posible converger dentro del número máximo de iteraciones y respetará los límites mecánicos del robot.
-
----
-
-## 12. Scripts de Soporte Rápido
+## 9. Scripts de Soporte Rápido
 
 - `./instalar.sh`: Instalación automatizada completa en un solo comando.
 - `./abrir.sh`: Lanza RViz2 y la visualización del KUKA KR6 R900 sixx.
