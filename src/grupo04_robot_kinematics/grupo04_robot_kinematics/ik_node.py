@@ -11,7 +11,7 @@ class IKNode(Node):
         # susc y pub
         self.subscription = self.create_subscription(Point, '/target', self.target_callback, 10)
         self.publisher = self.create_publisher(JointState, '/joint_states', 10)
-        
+        self.timer = self.create_timer(0.1, self.publicar_estado)
         # config inicial de q0
         self.q_actual = np.zeros(6) 
         
@@ -90,7 +90,10 @@ class IKNode(Node):
         msg = JointState()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
-        msg.position = self.q_actual.tolist()
+        q_corregido = self.q_actual.copy()
+        q_corregido[0] = -q_corregido[0] 
+        
+        msg.position = q_corregido.tolist()
         self.publisher.publish(msg)
 
 def main(args=None):
